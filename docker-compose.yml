@@ -1,0 +1,55 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000" # Expose FastAPI on host port 8000
+    volumes:
+      - ./backend/app:/app/app # Live reload for development (remove for production builds)
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-mydatabase}
+      # Add other backend environment variables here
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  #frontend:
+  #  build:
+  #    context: ./frontend
+  #    dockerfile: Dockerfile
+  #  ports:
+  #    - "8080:80" # Expose Vue app (served by Nginx) on host port 8080
+    # For development with Vite's HMR, you might run `npm run dev` directly in the container
+    # and map the frontend source code as a volume. The multi-stage build is more for production.
+    # If using Vite dev server in container:
+    # command: npm run dev -- --host # Ensures Vite listens on 0.0.0.0
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules # Anonymous volume to prevent host node_modules from overwriting container's
+  #  restart: unless-stopped
+  #  networks:
+  #    - app-network
+
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Persistent data
+    environment:
+      - POSTGRES_USER=${DB_USER:-user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_DB=${DB_NAME:-mydatabase}
+    ports: # Optional: expose for local psql access during dev, not needed for app
+      - "4320:5432"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres_data: # Ensures data is preserved between `docker-compose down` and `up`
+
+networks:
+  app-network:
+    driver: bridge
