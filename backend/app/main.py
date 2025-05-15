@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import api_router
-
+from sqlalchemy import text
+from app.db.session import engine
 
 app = FastAPI(
     title="FastAPI Template",
@@ -38,4 +39,17 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy"}
+    db_status = "unknown"
+    db_error = None
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        db_status = "healthy"
+    except Exception as e:
+        db_status = "unhealthy"
+        db_error = str(e)
+    return {
+        "status": "healthy",
+        "database": db_status,
+        **({"db_error": db_error} if db_error else {})
+    }
