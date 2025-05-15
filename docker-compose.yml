@@ -1,55 +1,85 @@
+# docker-compose.yml
+
+version: '3.8' # Specify a version for Docker Compose
+
 services:
   backend:
     build:
-      context: ./backend
+      context: ./backend # Path to the backend's Dockerfile and source code
       dockerfile: Dockerfile
     ports:
-      - "8000:8000" # Expose FastAPI on host port 8000
+      - "8000:8000" # Expose FastAPI on host port 8000, container port 8000
     volumes:
-      - ./backend/app:/app/app # Live reload for development (remove for production builds)
+      # For development, mount the app code for live reloading.
+      # For production, you'd typically copy the code in the Dockerfile and not use this volume.
+      - ./backend/app:/app/app
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-mydatabase}
-      # Add other backend environment variables here
+      # Add other backend environment variables here, e.g., API keys, JWT secrets
+      # - SECRET_KEY=your_secret_key
+      # - ALGORITHM=HS256
+      # - ACCESS_TOKEN_EXPIRE_MINUTES=30
     depends_on:
       - db
+      # db: # Ensures 'db' service is started before 'backend'
+      #   condition: service_healthy # Optional: wait for db to be healthy if healthcheck is defined
     restart: unless-stopped
     networks:
       - app-network
 
-  #frontend:
-  #  build:
-  #    context: ./frontend
-  #    dockerfile: Dockerfile
-  #  ports:
-  #    - "8080:80" # Expose Vue app (served by Nginx) on host port 8080
-    # For development with Vite's HMR, you might run `npm run dev` directly in the container
-    # and map the frontend source code as a volume. The multi-stage build is more for production.
-    # If using Vite dev server in container:
-    # command: npm run dev -- --host # Ensures Vite listens on 0.0.0.0
+  frontend:
+    build:
+      context: ./frontend # Path to the frontend's Dockerfile and source code
+      dockerfile: Dockerfile # Assumes your Dockerfile is named 'Dockerfile' in the ./frontend directory
+    ports:
+      - "8080:80" # Map host port 8080 to container port 80 (where Nginx listens)
+    # No volumes needed for production build as files are copied into the Nginx image.
+    # For development with Vite/Vue CLI dev server & HMR, you'd use a different setup:
+    # command: pnpm run dev -- --host # Or 'npm run dev -- --host'
     # volumes:
     #   - ./frontend:/app
-    #   - /app/node_modules # Anonymous volume to prevent host node_modules from overwriting container's
-  #  restart: unless-stopped
-  #  networks:
-  #    - app-network
+    #   - /app/node_modules # Anonymous volume to isolate node_modules
+    # ports:
+    #   - "5173:5173" # Or whatever port your dev server uses
+    depends_on:
+      - backend # Optional: Ensures backend is started. Useful if frontend makes API calls at startup,
+                # or if you want a specific startup order. For static SPAs, not strictly necessary for build.
+    restart: unless-stopped
+    networks:
+      - app-network
 
   db:
-    image: postgres:17
+    image: postgres:17 # Using a specific version of Postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data/ # Persistent data
+      - postgres_data:/var/lib/postgresql/data/ # Persistent data storage
     environment:
       - POSTGRES_USER=${DB_USER:-user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
       - POSTGRES_DB=${DB_NAME:-mydatabase}
-    ports: # Optional: expose for local psql access during dev, not needed for app
-      - "4320:5432"
+    ports:
+      # Expose PostgreSQL port to host for direct DB access during development (optional)
+      # Be cautious with exposing DB ports in production environments.
+      - "5432:5432" # Changed host port to 5432 to match default postgres, was 4320
     restart: unless-stopped
     networks:
       - app-network
+    # Optional: Add a healthcheck for the database
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-mydatabase}"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
 
 volumes:
-  postgres_data: # Ensures data is preserved between `docker-compose down` and `up`
+  postgres_data: # Defines the named volume for persistent PostgreSQL data
+    driver: local # Explicitly state driver (default is local)
 
 networks:
-  app-network:
+  app-network: # Defines the bridge network for communication between services
     driver: bridge
+
+# To use environment variables from a .env file, create a .env file in the same directory
+# as this docker-compose.yml file with content like:
+# DB_USER=myuser
+# DB_PASSWORD=mypassword
+# DB_NAME=myappdb
