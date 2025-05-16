@@ -4,11 +4,11 @@ services:
     # The actual image name will be sourced from the .env file on the VPS
     image: ${BACKEND_IMAGE_NAME}
     ports:
-      # Expose FastAPI on host port 8000, container port 8000
+      # Expose FastAPI on host port 8001, container port 8001
       # Adjust if you have a reverse proxy like Nginx or Traefik on the VPS
       # that will handle incoming traffic and route to this service.
       # If so, you might not need to expose this port to the host directly.
-      - "8000:8000"
+      - "8001:8001"
     environment:
       # DATABASE_URL will be sourced from the .env file on the VPS
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
@@ -40,13 +40,13 @@ services:
       # If your frontend needs to make requests from the client-side to an absolute URL
       # that is different in production (e.g., https://api.yourdomain.com),
       # you'll need to configure that build-time or run-time in your frontend app.
-      # For now, assuming it calls http://backend:8000 which works if requests are proxied
+      # For now, assuming it calls http://backend:8001 which works if requests are proxied
       # or if the frontend is served from the same domain and proxies API requests.
       # If your Nginx in the frontend container is configured to proxy /api to the backend,
       # then VITE_BACKEND_URL might be set to /api or similar.
       # For simplicity, keeping as per your dev setup, assuming direct inter-container communication
       # or that your frontend Nginx handles this.
-      - VITE_BACKEND_URL=http://backend:8000
+      - VITE_BACKEND_URL=http://backend:8001
     depends_on:
       - backend # Ensures backend is started, good for frontend making API calls.
     restart: unless-stopped

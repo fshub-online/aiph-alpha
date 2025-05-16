@@ -8,7 +8,7 @@ services:
       context: ./backend # Path to the backend's Dockerfile and source code
       dockerfile: Dockerfile
     ports:
-      - "8000:8000" # Expose FastAPI on host port 8000, container port 8000
+      - "8001:8001" # Expose FastAPI on host port 8001, container port 8001
     volumes:
       # For development, mount the app code for live reloading.
       # For production, you'd typically copy the code in the Dockerfile and not use this volume.
@@ -42,7 +42,7 @@ services:
     # ports:
     #   - "5173:5173" # Or whatever port your dev server uses
     environment:
-      - VITE_BACKEND_URL=http://backend:8000
+      - VITE_BACKEND_URL=http://backend:8001 # Backend URL for API calls
     depends_on:
       - backend # Optional: Ensures backend is started. Useful if frontend makes API calls at startup,
                 # or if you want a specific startup order. For static SPAs, not strictly necessary for build.
