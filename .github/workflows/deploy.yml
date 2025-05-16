@@ -71,7 +71,8 @@ jobs:
           # Create .env file on VPS from secrets
           # IMPORTANT: Ensure proper escaping if your secrets contain special characters
           echo "Creating .env file on VPS"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/aiph && \
+          # assuming accessible directory existing on VPS as VPS_USER will not have write access to /opt
+          # ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/aiph && \
           cat <<EOF > /opt/aiph/.env
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD='${{ secrets.DB_PASSWORD }}' # Quote if password has special chars
