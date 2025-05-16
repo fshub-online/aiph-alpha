@@ -15,9 +15,10 @@ services:
       # Add any other production-specific backend environment variables here.
       # These can also be added to the .env file on the VPS.
       # Example:
-      # - SECRET_KEY=${BACKEND_SECRET_KEY} # Assuming BACKEND_SECRET_KEY is in your .env
-      # - ALGORITHM=${ALGORITHM}
-      # - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - SECRET_KEY=${SECRET_KEY} 
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS}
     depends_on:
       - db
     restart: unless-stopped

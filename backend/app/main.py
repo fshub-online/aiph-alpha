@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import api_router
 from sqlalchemy import text
 from app.db.session import engine
+from app.core.config import settings
+import sys
 
 app = FastAPI(
     title="FastAPI Template",
@@ -24,7 +26,11 @@ app.include_router(api_router, prefix="/api/v1", tags=["v1"])
 
 @app.on_event("startup")
 def startup():
-    print("Starting up...")
+    print("Starting up...", file=sys.stdout, flush=True)
+    print("Loaded settings:", file=sys.stdout, flush=True)
+    for key, value in settings.__dict__.items():
+        if not key.startswith("_"):
+            print(f"   {key}: {value}", file=sys.stdout, flush=True)
 
 
 @app.on_event("shutdown")
@@ -51,5 +57,5 @@ async def health():
     return {
         "status": "healthy",
         "database": db_status,
-        **({"db_error": db_error} if db_error else {})
+        **({"db_error": db_error} if db_error else {}),
     }

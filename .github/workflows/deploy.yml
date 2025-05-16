@@ -86,9 +86,10 @@ jobs:
           # For Docker image names, ensure they match what you pushed:
           BACKEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-backend:latest
           FRONTEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest
-          # For GHCR:
-          # BACKEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-backend:latest
-          # FRONTEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
+          SECRET_KEY=${{ secrets.SECRET_KEY }} 
+          ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=60
+          REFRESH_TOKEN_EXPIRE_DAYS=7
           EOF
 
 
