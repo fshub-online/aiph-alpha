@@ -18,7 +18,7 @@
   const loading = ref(true)
 
   // Read backend URL from environment variable
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
 
   onMounted(async () => {
     try {

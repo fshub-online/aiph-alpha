@@ -31,6 +31,13 @@ def startup():
     for key, value in settings.__dict__.items():
         if not key.startswith("_"):
             print(f"   {key}: {value}", file=sys.stdout, flush=True)
+    print("Database URL:", settings.database_url, file=sys.stdout, flush=True)
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("Database connection: OK", file=sys.stdout, flush=True)
+    except Exception as e:
+        print(f"Database connection: FAILED - {e}", file=sys.stdout, flush=True)
 
 
 @app.on_event("shutdown")
