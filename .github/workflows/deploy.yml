@@ -73,7 +73,12 @@ jobs:
           echo "Creating .env file on VPS"
           # assuming accessible directory existing on VPS as VPS_USER will not have write access to /opt
           # ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/aiph && \
-          cat <<EOF > /opt/aiph/.env
+          
+          # Create .env file on VPS from secrets
+          echo "Creating .env file on VPS"
+          # The here-document's content (with secrets expanded by the runner)
+          # is piped as input to the ssh command, which then executes 'cat > /opt/aiph/.env' on the VPS.
+          cat <<EOF | ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'cat > /opt/aiph/.env'
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD='${{ secrets.DB_PASSWORD }}' # Quote if password has special chars
           DB_NAME=${{ secrets.DB_NAME }}
@@ -84,7 +89,8 @@ jobs:
           # For GHCR:
           # BACKEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-backend:latest
           # FRONTEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
-          EOF"
+          EOF
+
 
           # Copy docker-compose.yml to VPS
           echo "Copying docker-compose.yml to VPS"
