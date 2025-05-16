@@ -49,3 +49,4 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest # For GHCR: ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
+
