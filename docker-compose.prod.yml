@@ -37,18 +37,6 @@ services:
       - "8080:80"
     environment:
       - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
-      # This tells the frontend running in the browser where to find the backend.
-      # 'backend' is resolvable within the Docker network.
-      # If your frontend needs to make requests from the client-side to an absolute URL
-      # that is different in production (e.g., https://api.yourdomain.com),
-      # you'll need to configure that build-time or run-time in your frontend app.
-      # For now, assuming it calls http://backend:8001 which works if requests are proxied
-      # or if the frontend is served from the same domain and proxies API requests.
-      # If your Nginx in the frontend container is configured to proxy /api to the backend,
-      # then VITE_BACKEND_URL might be set to /api or similar.
-      # For simplicity, keeping as per your dev setup, assuming direct inter-container communication
-      # or that your frontend Nginx handles this.
-      # - VITE_BACKEND_URL=http://backend:8001
     depends_on:
       - backend # Ensures backend is started, good for frontend making API calls.
     restart: unless-stopped
