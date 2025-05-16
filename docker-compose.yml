@@ -41,6 +41,8 @@ services:
     #   - /app/node_modules # Anonymous volume to isolate node_modules
     # ports:
     #   - "5173:5173" # Or whatever port your dev server uses
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
     depends_on:
       - backend # Optional: Ensures backend is started. Useful if frontend makes API calls at startup,
                 # or if you want a specific startup order. For static SPAs, not strictly necessary for build.

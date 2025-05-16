@@ -50,3 +50,50 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest # For GHCR: ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
 
+  deploy_to_vps:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build_and_push_images # Ensure images are built and pushed first
+    steps:
+      - name: Checkout code # To get docker-compose.yml and .env template
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Deploy to VPS
+        run: |
+          # Add VPS host to known_hosts to avoid interactive prompt
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+          # Create .env file on VPS from secrets
+          # IMPORTANT: Ensure proper escaping if your secrets contain special characters
+          echo "Creating .env file on VPS"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/aiph && \
+          cat <<EOF > /opt/aiph/.env
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD='${{ secrets.DB_PASSWORD }}' # Quote if password has special chars
+          DB_NAME=${{ secrets.DB_NAME }}
+          # Add other production environment variables here
+          # For Docker image names, ensure they match what you pushed:
+          BACKEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-backend:latest
+          FRONTEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest
+          # For GHCR:
+          # BACKEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-backend:latest
+          # FRONTEND_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
+          EOF"
+
+          # Copy docker-compose.yml to VPS
+          echo "Copying docker-compose.yml to VPS"
+          scp ./docker-compose.prod.yml ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/aiph/docker-compose.yml
+          # Note: Using a separate docker-compose.prod.yml is good practice.
+          # It would look like your local one but reference image names from the registry
+          # and not have build contexts or local volume mounts for code.
+
+          echo "Pulling new images and restarting services on VPS"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'cd /opt/aiph && \
+          source .env && docker-compose -f docker-compose.yml pull && \
+          docker-compose -f docker-compose.yml up -d --remove-orphans && \
+          docker image prune -af' # Clean up dangling images

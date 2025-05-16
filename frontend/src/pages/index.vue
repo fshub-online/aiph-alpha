@@ -17,10 +17,12 @@
   const error = ref(null)
   const loading = ref(true)
 
+  // Read backend URL from environment variable
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+
   onMounted(async () => {
     try {
-      // Adjust the URL if your backend runs on a different host/port
-      const res = await axios.get('http://localhost:8000/health')
+      const res = await axios.get(`${backendUrl}/health`)
       result.value = res.data
     } catch (err) {
       error.value = err.message || 'Unknown error'
