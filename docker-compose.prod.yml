@@ -11,16 +11,18 @@ services:
       - "8001:8001"
     environment:
       # DATABASE_URL will be sourced from the .env file on the VPS
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       # Add any other production-specific backend environment variables here.
       # These can also be added to the .env file on the VPS.
       # Example:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - SECRET_KEY=${SECRET_KEY} 
       - ALGORITHM=${ALGORITHM}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
       - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS}
     depends_on:
-      - db
+      db:
+        condition: service_healthy # Wait for DB to be healthy before starting/running migrations
     restart: unless-stopped
     networks:
       - app-network
@@ -60,12 +62,12 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    # Optional: Add a healthcheck for the database
-    # healthcheck:
-    #   test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
+    healthcheck: # Ensure DB is ready before migrations run
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
 volumes:
   postgres_data: # Defines the named volume for persistent PostgreSQL data
