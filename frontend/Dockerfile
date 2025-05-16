@@ -46,6 +46,9 @@ RUN pnpm run build
 # Alpine Linux based images are smaller.
 FROM nginx:stable-alpine AS production-stage
 
+# Install gettext for envsubst utility
+RUN apk add --no-cache gettext
+
 # Set the working directory for Nginx.
 WORKDIR /usr/share/nginx/html
 
@@ -57,13 +60,15 @@ RUN rm -rf ./*
 # Adjust '/app/dist' if your build output directory is different.
 COPY --from=build-stage /app/dist .
 
-# (Optional) Copy a custom Nginx configuration file.
-# This is often needed for Single Page Applications (SPAs) like Vue.js
-# to correctly handle client-side routing (e.g., Vue Router in history mode).
-# If you don't have a custom nginx.conf, Nginx will use its default configuration.
-# Create an 'nginx.conf' file in the same directory as your Dockerfile.
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-# If you don't have a custom nginx.conf, you can remove the line above.
+# Copy your Nginx configuration template and the entrypoint script
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
+COPY entrypoint.sh /entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Expose port 80 to the outside world.
 EXPOSE 80

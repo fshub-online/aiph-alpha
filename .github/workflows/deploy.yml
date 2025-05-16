@@ -90,6 +90,7 @@ jobs:
           ALGORITHM=HS256
           ACCESS_TOKEN_EXPIRE_MINUTES=60
           REFRESH_TOKEN_EXPIRE_DAYS=7
+          NGINX_SERVER_NAME=${{ secrets.VPS_DOMAIN_NAME }} # Add your domain name secret here
           EOF
 
 

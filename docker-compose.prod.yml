@@ -36,6 +36,7 @@ services:
       # on port 80 over the app-network, and you might not expose this port to the host.
       - "8080:80"
     environment:
+      - DUMMY_ENV_VAR=example # Example environment variable for frontend
       # This tells the frontend running in the browser where to find the backend.
       # 'backend' is resolvable within the Docker network.
       # If your frontend needs to make requests from the client-side to an absolute URL
@@ -47,7 +48,7 @@ services:
       # then VITE_BACKEND_URL might be set to /api or similar.
       # For simplicity, keeping as per your dev setup, assuming direct inter-container communication
       # or that your frontend Nginx handles this.
-      - VITE_BACKEND_URL=http://backend:8001
+      # - VITE_BACKEND_URL=http://backend:8001
     depends_on:
       - backend # Ensures backend is started, good for frontend making API calls.
     restart: unless-stopped

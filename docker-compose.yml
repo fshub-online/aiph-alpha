@@ -38,7 +38,8 @@ services:
     # ports:
     #   - "5173:5173" # Or whatever port your dev server uses
     environment:
-      - VITE_BACKEND_URL=http://backend:8001 # Backend URL for API calls
+      - DUMMY_ENV_VAR=example # Example environment variable for frontend
+    #  - VITE_BACKEND_URL=http://backend:8001 # Backend URL for API calls
     depends_on:
       - backend # Optional: Ensures backend is started. Useful if frontend makes API calls at startup,
                 # or if you want a specific startup order. For static SPAs, not strictly necessary for build.

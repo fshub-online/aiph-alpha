@@ -17,42 +17,9 @@
   const error = ref(null);
   const loading = ref(true);
 
-  // Read backend URL from environment variable
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-  if (!backendUrl) {
-    console.error(
-      'VITE_BACKEND_URL is not defined in your environment variables.'
-    );
-  } else {
-    console.info(`Resolved backend URL: ${backendUrl}`);
-    try {
-      const url = new URL(backendUrl);
-      const hostname = url.hostname;
-      // Use a public DNS resolver API to resolve the IP address
-      axios
-        .get(`https://dns.google/resolve?name=${hostname}&type=A`)
-        .then(res => {
-          const answer = res.data.Answer;
-          if (answer && answer.length > 0) {
-            console.info(
-              `Resolved IP address for ${hostname}: ${answer[0].data}`
-            );
-          } else {
-            console.warn(`Could not resolve IP address for ${hostname}`);
-          }
-        })
-        .catch(err => {
-          console.warn(`DNS resolution failed for ${hostname}: ${err.message}`);
-        });
-    } catch (e) {
-      console.warn('Invalid backend URL:', e.message);
-    }
-  }
-
   onMounted(async () => {
     try {
-      const res = await axios.get(`${backendUrl}/health`);
+      const res = await axios.get('/api/health');
       result.value = res.data;
     } catch (err) {
       error.value = err.message || 'Unknown error';
