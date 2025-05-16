@@ -36,7 +36,7 @@ services:
       # on port 80 over the app-network, and you might not expose this port to the host.
       - "8080:80"
     environment:
-      - DUMMY_ENV_VAR=example # Example environment variable for frontend
+      - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
       # This tells the frontend running in the browser where to find the backend.
       # 'backend' is resolvable within the Docker network.
       # If your frontend needs to make requests from the client-side to an absolute URL
