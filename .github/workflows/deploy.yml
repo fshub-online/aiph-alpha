@@ -25,13 +25,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      # For GHCR:
-      # - name: Login to GitHub Container Registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }} # GITHUB_TOKEN has package write permissions
 
       - name: Build and push Backend image
         uses: docker/build-push-action@v5
@@ -39,7 +32,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/aiph-backend:latest # For GHCR: ghcr.io/${{ github.repository_owner }}/my-app-backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/aiph-backend:latest 
           # You can use ${{ github.sha }} or a release tag for more specific versioning
 
       - name: Build and push Frontend image
@@ -48,7 +41,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest # For GHCR: ghcr.io/${{ github.repository_owner }}/my-app-frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest 
 
   deploy_to_vps:
     name: Deploy to VPS
@@ -70,7 +63,6 @@ jobs:
 
           # Create .env file on VPS from secrets
           # IMPORTANT: Ensure proper escaping if your secrets contain special characters
-          echo "Creating .env file on VPS"
           # assuming accessible directory existing on VPS as VPS_USER will not have write access to /opt
           # ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/aiph && \
           
@@ -82,10 +74,13 @@ jobs:
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD='${{ secrets.DB_PASSWORD }}' # Quote if password has special chars
           DB_NAME=${{ secrets.DB_NAME }}
+          DB_HOST=db # Important: Alembic running in backend container needs to resolve 'db'
+          DB_PORT=5432
           # Add other production environment variables here
           # For Docker image names, ensure they match what you pushed:
           BACKEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-backend:latest
           FRONTEND_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/aiph-frontend:latest
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           SECRET_KEY=${{ secrets.SECRET_KEY }} 
           ALGORITHM=HS256
           ACCESS_TOKEN_EXPIRE_MINUTES=60
@@ -101,8 +96,15 @@ jobs:
           # It would look like your local one but reference image names from the registry
           # and not have build contexts or local volume mounts for code.
 
-          echo "Pulling new images and restarting services on VPS"
+          echo "Deploying application stack to VPS"
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'cd /opt/aiph && \
-          source .env && docker compose -f docker-compose.yml pull && \
+          echo "Loading environment variables from .env file..." && \
+          source .env && \
+          echo "Pulling latest images..." && \
+          docker compose -f docker-compose.yml pull && \
+          echo "Running database migrations..." && \
+          docker compose -f docker-compose.yml run --rm backend alembic upgrade head && \
+          echo "Starting application services..." && \
           docker compose -f docker-compose.yml up -d --remove-orphans && \
-          docker image prune -af' # Clean up dangling images
+          echo "Cleaning up old Docker images..." && \
+          docker image prune -af'

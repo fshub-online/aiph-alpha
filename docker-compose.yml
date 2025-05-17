@@ -9,16 +9,20 @@ services:
       # For development, mount the app code for live reloading.
       # For production, you'd typically copy the code in the Dockerfile and not use this volume.
       - ./backend/app:/app/app
+      # Mount Alembic configuration and scripts for live updates/generation
+      - ./backend/alembic.ini:/app/alembic.ini
+      - ./backend/alembic:/app/alembic
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-mydatabase}
-      # Add other backend environment variables here, e.g., API keys, JWT secrets
-      # - SECRET_KEY=your_secret_key
-      # - ALGORITHM=HS256
-      # - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_api_key}
+      - SECRET_KEY=${SECRET_KEY:-your_secret_key}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-7}
     depends_on:
-      - db
-      # db: # Ensures 'db' service is started before 'backend'
-      #   condition: service_healthy # Optional: wait for db to be healthy if healthcheck is defined
+      #- db
+      db: # Ensures 'db' service is started before 'backend'
+        condition: service_healthy # Optional: wait for db to be healthy if healthcheck is defined
     restart: unless-stopped
     networks:
       - app-network
@@ -61,12 +65,12 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    # Optional: Add a healthcheck for the database
-    # healthcheck:
-    #   test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-mydatabase}"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
+    # Recommended: Add a healthcheck for the database for 'depends_on' condition
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-mydatabase}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data: # Defines the named volume for persistent PostgreSQL data
@@ -77,7 +81,14 @@ networks:
     driver: bridge
 
 # To use environment variables from a .env file, create a .env file in the same directory
-# as this docker-compose.yml file with content like:
-# DB_USER=myuser
-# DB_PASSWORD=mypassword
-# DB_NAME=myappdb
+# as this docker-compose.yml file (i.e., your project root) with content like:
+# DB_USER=mydevuser
+# DB_PASSWORD=mydevpassword
+# DB_NAME=mydevdb
+# OPENAI_API_KEY=your_openai_api_key
+# SECRET_KEY=a_very_strong_local_secret_key_for_development
+# ALGORITHM=HS256
+# ACCESS_TOKEN_EXPIRE_MINUTES=60
+# REFRESH_TOKEN_EXPIRE_DAYS=30
+# NGINX_SERVER_NAME=localhost
+
