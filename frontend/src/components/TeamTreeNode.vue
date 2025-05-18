@@ -25,6 +25,7 @@
         <span>Failed to load objectives: {{ objectivesError }}</span>
       </div>
       <div v-if="objectives.length" class="objectives-list">
+        Objectives:
         <div v-for="obj in objectives" :key="obj.id" class="objective-item">
           <v-icon
             :color="getObjectiveColor(obj.status)"
@@ -43,7 +44,7 @@
             class="key-results-list"
             style="margin-left: 0.5em; color: #1976d2; font-size: 0.95em"
           >
-            (
+            Key Results: (
             <span
               v-for="(kr, idx) in keyResultsByObjective[obj.id]"
               :key="kr.id"
