@@ -9,6 +9,18 @@
           <v-row class="my-0" dense>
             <v-col class="py-1 px-1">
               <v-text-field
+                v-model="localKeyResult.title"
+                density="compact"
+                hide-details
+                label="Title"
+                required
+                :rules="[rules.required]"
+              />
+            </v-col>
+          </v-row>
+          <v-row class="my-0" dense>
+            <v-col class="py-1 px-1">
+              <v-text-field
                 v-model="localKeyResult.description"
                 density="compact"
                 hide-details

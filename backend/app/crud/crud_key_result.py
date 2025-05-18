@@ -11,6 +11,7 @@ def get_key_results(db: Session, skip: int = 0, limit: int = 100) -> List[KeyRes
 
 def create_key_result(db: Session, *, obj_in: KeyResultCreate) -> KeyResult:
     db_obj = KeyResult(
+        title=obj_in.title,
         description=obj_in.description,
         target_value=obj_in.target_value,
         current_value=obj_in.current_value,

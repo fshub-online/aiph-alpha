@@ -16,6 +16,7 @@ class KeyResultComplexityLevel(enum.Enum):
 class KeyResult(Base):
     __tablename__ = "key_results"
 
+    title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
     target_value: Mapped[float] = mapped_column(Float, nullable=False)
     current_value: Mapped[float] = mapped_column(Float, nullable=False)

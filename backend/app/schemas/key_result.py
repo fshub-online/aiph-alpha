@@ -5,6 +5,7 @@ from app.models.key_result import KeyResultStatus, KeyResultComplexityLevel
 
 
 class KeyResultBase(BaseModel):
+    title: str
     description: str
     target_value: float
     current_value: float
@@ -22,6 +23,7 @@ class KeyResultCreate(KeyResultBase):
 
 
 class KeyResultUpdate(BaseModel):
+    title: Optional[str] = None
     description: Optional[str] = None
     target_value: Optional[float] = None
     current_value: Optional[float] = None
