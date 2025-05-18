@@ -31,3 +31,10 @@ from .crud_progress_update import (
     delete_progress_update,
 )
 
+from .crud_key_result import (
+    get_key_result,
+    get_key_results,
+    create_key_result,
+    update_key_result,
+    delete_key_result,
+)

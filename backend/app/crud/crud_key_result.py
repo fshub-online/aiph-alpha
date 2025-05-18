@@ -1,37 +1,48 @@
-from typing import List, Optional
+from typing import Any, Dict, Optional, Union, List
 from sqlalchemy.orm import Session
-from uuid import UUID
 from app.models.key_result import KeyResult
 from app.schemas.key_result import KeyResultCreate, KeyResultUpdate
 
-class CRUDKeyResult:
-    def get(self, db: Session, id: UUID) -> Optional[KeyResult]:
-        return db.query(KeyResult).filter(KeyResult.id == id).first()
+def get_key_result(db: Session, key_result_id: int) -> Optional[KeyResult]:
+    return db.query(KeyResult).filter(KeyResult.id == key_result_id).first()
 
-    def get_multi(self, db: Session, skip: int = 0, limit: int = 100) -> List[KeyResult]:
-        return db.query(KeyResult).offset(skip).limit(limit).all()
+def get_key_results(db: Session, skip: int = 0, limit: int = 100) -> List[KeyResult]:
+    return db.query(KeyResult).offset(skip).limit(limit).all()
 
-    def create(self, db: Session, obj_in: KeyResultCreate) -> KeyResult:
-        db_obj = KeyResult(**obj_in.dict())
-        db.add(db_obj)
+def create_key_result(db: Session, *, obj_in: KeyResultCreate) -> KeyResult:
+    db_obj = KeyResult(
+        description=obj_in.description,
+        target_value=obj_in.target_value,
+        current_value=obj_in.current_value,
+        start_value=obj_in.start_value,
+        unit=obj_in.unit,
+        status=obj_in.status,
+        complexity_level=obj_in.complexity_level,
+        due_date=obj_in.due_date,
+        objective_id=str(obj_in.objective_id),
+        team_member_id=str(obj_in.team_member_id) if obj_in.team_member_id else None,
+    )
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+def update_key_result(db: Session, *, db_obj: KeyResult, obj_in: Union[KeyResultUpdate, Dict[str, Any]]) -> KeyResult:
+    if isinstance(obj_in, dict):
+        update_data = obj_in
+    else:
+        update_data = obj_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_obj, field, value)
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+def delete_key_result(db: Session, *, key_result_id: int) -> Optional[KeyResult]:
+    obj = db.query(KeyResult).get(key_result_id)
+    if obj:
+        db.delete(obj)
         db.commit()
-        db.refresh(db_obj)
-        return db_obj
+    return obj
 
-    def update(self, db: Session, db_obj: KeyResult, obj_in: KeyResultUpdate) -> KeyResult:
-        obj_data = obj_in.dict(exclude_unset=True)
-        for field, value in obj_data.items():
-            setattr(db_obj, field, value)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
-
-    def remove(self, db: Session, id: UUID) -> Optional[KeyResult]:
-        obj = db.query(KeyResult).get(id)
-        if obj:
-            db.delete(obj)
-            db.commit()
-        return obj
-
-crud_key_result = CRUDKeyResult()

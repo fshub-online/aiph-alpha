@@ -1,8 +1,3 @@
-"""
-Objective ORM Model.
-
-This module defines the SQLAlchemy ORM model for a 'Objective'.
-"""
 from sqlalchemy import String, Text, Integer, ForeignKey, Enum, Date, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base_class import Base

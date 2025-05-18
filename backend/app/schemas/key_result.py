@@ -3,6 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel
 from app.models.key_result import KeyResultStatus, KeyResultComplexityLevel
 
+
 class KeyResultBase(BaseModel):
     description: str
     target_value: float
@@ -15,8 +16,10 @@ class KeyResultBase(BaseModel):
     objective_id: int
     team_member_id: Optional[int] = None
 
+
 class KeyResultCreate(KeyResultBase):
     pass
+
 
 class KeyResultUpdate(BaseModel):
     description: Optional[str] = None
@@ -30,6 +33,7 @@ class KeyResultUpdate(BaseModel):
     objective_id: Optional[int] = None
     team_member_id: Optional[int] = None
 
+
 class KeyResultInDBBase(KeyResultBase):
     id: int
     created_at: datetime
@@ -38,8 +42,10 @@ class KeyResultInDBBase(KeyResultBase):
     class Config:
         from_attributes = True
 
+
 class KeyResult(KeyResultInDBBase):
     pass
+
 
 class KeyResultInDB(KeyResultInDBBase):
     pass

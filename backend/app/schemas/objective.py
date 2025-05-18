@@ -1,44 +1,14 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date, datetime
-from enum import Enum
-
-class ObjectiveLevel(str, Enum):
-    ORGANIZATIONAL = "ORGANIZATIONAL"
-    DEPARTMENTAL = "DEPARTMENTAL"
-    TEAM = "TEAM"
-    INDIVIDUAL = "INDIVIDUAL"
-
-class ObjectiveStatus(str, Enum):
-    NOT_STARTED = "NOT_STARTED"
-    ON_TRACK = "ON_TRACK"
-    AT_RISK = "AT_RISK"
-    DELAYED = "DELAYED"
-    ACHIEVED = "ACHIEVED"
-    ON_HOLD = "ON_HOLD"
-    CANCELLED = "CANCELLED"
-
-class ObjectivePriority(str, Enum):
-    HIGH = "HIGH"
-    MEDIUM = "MEDIUM"
-    LOW = "LOW"
-
-class ObjectiveConfidentiality(str, Enum):
-    PUBLIC = "PUBLIC"
-    INTERNAL = "INTERNAL"
-    RESTRICTED = "RESTRICTED"
-
-class ObjectiveStrategicPerspective(str, Enum):
-    FINANCIAL = "FINANCIAL"
-    CUSTOMER = "CUSTOMER"
-    INTERNAL_PROCESS = "INTERNAL_PROCESS"
-    LEARNING_GROWTH = "LEARNING_GROWTH"
-
-class ObjectiveReviewCadence(str, Enum):
-    MONTHLY = "MONTHLY"
-    QUARTERLY = "QUARTERLY"
-    BI_ANNUALLY = "BI_ANNUALLY"
-    ANNUALLY = "ANNUALLY"
+from app.models.objective import (
+    ObjectiveLevel,
+    ObjectiveStatus,
+    ObjectivePriority,
+    ObjectiveConfidentiality,
+    ObjectiveStrategicPerspective,
+    ObjectiveReviewCadence,
+)
 
 
 class ObjectiveBase(BaseModel):
@@ -58,6 +28,7 @@ class ObjectiveBase(BaseModel):
     strategic_perspective: Optional[ObjectiveStrategicPerspective] = None
     review_cadence: Optional[ObjectiveReviewCadence] = None
     last_review_date: Optional[date] = None
+    last_updated_date: Optional[datetime] = None
 
 class ObjectiveCreate(ObjectiveBase):
     pass
