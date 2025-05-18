@@ -25,7 +25,6 @@
         <span>Failed to load objectives: {{ objectivesError }}</span>
       </div>
       <div v-if="objectives.length" class="objectives-list">
-        Objectives:
         <div v-for="obj in objectives" :key="obj.id" class="objective-item">
           <v-icon
             :color="getObjectiveColor(obj.status)"
@@ -62,7 +61,7 @@
             size="18"
             style="margin-left: 2px; cursor: pointer"
             @click="goToObjectiveDashboard(obj.id)"
-          >mdi-dots-horizontal</v-icon>
+          >mdi-monitor-dashboard</v-icon>
         </div>
       </div>
     </div>
