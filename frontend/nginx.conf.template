@@ -1,37 +1,76 @@
-# /etc/nginx/conf.d/default.conf
-# This is a template file. Variables like ${NGINX_SERVER_NAME_OR_DEFAULT}
-# will be replaced by the entrypoint.sh script.
+# ./frontend/nginx.conf.template (Simplified for HTTP Only, with redirect fixes)
+
+# Custom log format to see upstream Location header
+# log_format upstream_log '[$time_local] $remote_addr - $remote_user - $server_name '
+#                         'to: $upstream_addr: $request upstream_response_time $upstream_response_time msec $msec '
+#                         'request_time $request_time status $status upstream_status $upstream_status '
+#                         'upstream_location "$upstream_http_location"'; # <-- This captures Location
 
 server {
     listen 80;
-    server_name ${NGINX_SERVER_NAME_OR_DEFAULT}; # Or your domain name
+    # NGINX_SERVER_NAME_OR_DEFAULT will be substituted by entrypoint.sh
+    # It should be 'localhost' for your local dev if NGINX_SERVER_NAME env var is not set,
+    # or your actual domain/IP in production.
+    server_name ${NGINX_SERVER_NAME_OR_DEFAULT};
 
-    # Root directory for the Vue.js application's static files
     root /usr/share/nginx/html;
     index index.html index.htm;
 
     # Serve static files directly
     location ~* \.(?:css|js|map|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv|svg|svgz|eot|ttf|woff|woff2)$ {
-        expires 1y; # Cache static assets for a long time
+        expires 1y;
         add_header Cache-Control "public";
-        access_log off; # Optional: disable access log for static files
+        access_log off;
     }
 
-    location /api/ {
-        proxy_pass http://backend:8001/; # Note the trailing slash if needed
-        proxy_set_header Host $host;
+    location /proxy/ {
+        proxy_pass http://backend:8001/; # Your backend service and internal port
+
+        # access_log /var/log/nginx/upstream_access.log upstream_log;
+        # For more detailed Nginx debugging (optional, can be very verbose):
+        # error_log /var/log/nginx/nginx_error.log debug;
+
+        # Standard proxy headers for passing client information
+        # These headers help the backend (FastAPI/Uvicorn) understand the original request context.
+        # Ensure your backend (e.g., Uvicorn CMD in backend/Dockerfile) is configured with
+        # --proxy-headers and --forwarded-allow-ips (e.g., --forwarded-allow-ips "*")
+        # to correctly interpret these headers.
+        proxy_set_header Host $host; # Contains client's original Host header (e.g., localhost:8080)
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $scheme; # 'http' in this case
+        proxy_set_header X-Forwarded-Host $host;    # Pass the original host again (often includes port if non-standard)
+        proxy_set_header X-Forwarded-Port $server_port; # The port Nginx is listening on for this request (e.g., 80 if mapped from 8080:80)
+
+        # --- Key directives for fixing Location headers in redirects ---
+
+        # NEW/MODIFIED RULE:
+        # If backend (now aware of --root-path /proxy) sends Location: http://localhost/proxy/api/v1/...
+        # Rewrite it to: http://<nginx_host_and_port>/proxy/api/v1/...
+        proxy_redirect ~^http://localhost(:\d+)?(/proxy/.*)$ $scheme://$http_host$2;
+
+        # Keep this for safety, in case backend ever sends its internal address
+        proxy_redirect ~^http://backend:8001/(.*)$ $scheme://$http_host/proxy/$1;
+        
+        # This rule is likely no longer needed if the --root-path /proxy works correctly
+        # and the new rule above handles the localhost case. Comment out or remove.
+        # proxy_redirect ~^http://localhost(:[0-9]+)?/(api/v1/.*)$ $scheme://$host/proxy/$2;
+        
+        # This rule might also be less relevant, but keep for now if other localhost redirects occur.
+        # proxy_redirect ~^http://localhost(:[0-9]+)?/(.*)$ $scheme://$host/proxy/$2;
+
+        proxy_redirect default;
+
+        # Ensure upstream server (FastAPI) doesn't Gzip if Nginx is already doing it
+        # proxy_set_header Accept-Encoding "";
+
     }
 
-    # For Single Page Applications (SPA) like Vue.js with history mode,
-    # all routes should point to index.html to let Vue Router handle them.
+    # SPA fallback
     location / {
         try_files $uri $uri/ /index.html;
     }
 
-    # (Optional) Add gzip compression for better performance
     gzip on;
     gzip_vary on;
     gzip_proxied any;
@@ -39,13 +78,4 @@ server {
     gzip_buffers 16 8k;
     gzip_http_version 1.1;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
-
-    # (Optional) Add security headers
-    # add_header X-Frame-Options "SAMEORIGIN" always;
-    # add_header X-XSS-Protection "1; mode=block" always;
-    # add_header X-Content-Type-Options "nosniff" always;
-    # add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    # add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self';" always;
-    # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 }
-
