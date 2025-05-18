@@ -45,6 +45,7 @@
           v-if="teamMembers.length && userTeamMemberId"
           :members="teamMembers"
           :user-team-member-id="userTeamMemberId"
+          @edit-key-result="handleEditKeyResult"
           @edit-objective="handleEditObjective"
           @edit-team-member="handleEditTeamMember"
         />
@@ -269,6 +270,11 @@
   function handleEditTeamMember (member) {
     teamMemberDialogId.value = member.id;
     showTeamMemberDialog.value = true;
+  }
+
+  function handleEditKeyResult (kr) {
+    keyResultDialogId.value = kr.id;
+    showKeyResultDialog.value = true;
   }
 
   onMounted(async () => {

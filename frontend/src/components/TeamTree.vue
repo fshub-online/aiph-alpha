@@ -4,6 +4,7 @@
       <TeamTreeNode
         :level="0"
         :member="rootMember"
+        @edit-key-result="$emit('edit-key-result', $event)"
         @edit-objective="$emit('edit-objective', $event)"
         @edit-team-member="$emit('edit-team-member', $event)"
       />
@@ -17,7 +18,7 @@
 <script setup>
   import { computed, defineAsyncComponent } from 'vue';
 
-  defineEmits(['edit-objective', 'edit-team-member']);
+  defineEmits(['edit-objective', 'edit-team-member', 'edit-key-result']);
 
   const TeamTreeNode = defineAsyncComponent(() => import('./TeamTreeNode.vue'));
 
