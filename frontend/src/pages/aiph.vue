@@ -19,11 +19,13 @@
         </router-link>
         <v-btn class="mt-2" color="primary" size="small" @click="openCreateDialog">Create Objective</v-btn>
       </div>
-      <router-link class="icon-link" to="/key-results">
-        <v-icon size="36">mdi-checkbox-marked-circle-outline</v-icon>
-        <span>Key Results</span>
-      </router-link>
-      <v-btn class="mt-2" color="primary" size="small" @click="openCreateKeyResultDialog">Create Key Result</v-btn>
+      <div class="key-result-icon-group">
+        <router-link class="icon-link" to="/key-results">
+          <v-icon size="36">mdi-checkbox-marked-circle-outline</v-icon>
+          <span>Key Results</span>
+        </router-link>
+        <v-btn class="mt-2" color="primary" size="small" @click="openCreateKeyResultDialog">Create Key Result</v-btn>
+      </div>
       <router-link class="icon-link" to="/evaluations">
         <v-icon size="36">mdi-clipboard-check-outline</v-icon>
         <span>Evaluations</span>
