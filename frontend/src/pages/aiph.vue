@@ -250,13 +250,20 @@
     }
   }
 
-  function handleSaveKeyResult (kr, formRef) {
-    if (formRef && !(formRef.validate && formRef.validate())) return;
-    // Implement save logic here (API call)
-    showKeyResultDialog.value = false;
-    snackbarText.value = 'Key Result saved successfully.';
-    snackbarColor.value = 'success';
-    snackbar.value = true;
+  async function handleSaveKeyResult (kr, formRef) {
+    if (formRef && formRef.validate && !formRef.validate()) return;
+    try {
+      await api.post('/key_results/', kr);
+      snackbarText.value = 'Key Result created successfully.';
+      snackbarColor.value = 'success';
+      snackbar.value = true;
+      showKeyResultDialog.value = false;
+      // Optionally reload data here if you want to refresh the dashboard
+    } catch (e) {
+      snackbarText.value = 'Failed to create key result: ' + (e?.response?.data?.detail || e.message);
+      snackbarColor.value = 'error';
+      snackbar.value = true;
+    }
   }
 
   function handleEditTeamMember (member) {
