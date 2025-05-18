@@ -103,6 +103,28 @@
           @delete="openDeleteProgressDialog"
           @edit="openEditProgressDialog"
         />
+        <v-divider class="my-4" />
+        <div class="d-flex align-center mb-2">
+          <span class="text-h6">Key Results</span>
+          <v-spacer />
+          <v-btn color="primary" size="small" @click="openCreateKeyResultDialog">
+            <v-icon left size="18">mdi-plus</v-icon>
+            New Key Result
+          </v-btn>
+        </div>
+        <v-list v-if="keyResults.length" class="key-result-list">
+          <v-list-item v-for="kr in keyResults" :key="kr.id" class="key-result-list-item">
+            <v-list-item-content>
+              <div class="key-result-title">{{ kr.title }}</div>
+              <div class="key-result-status">Status: {{ kr.status }}</div>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon size="small" @click="openEditKeyResultDialog(kr)"><v-icon size="18">mdi-pencil</v-icon></v-btn>
+              <v-btn color="error" icon size="small" @click="openDeleteKeyResultDialog(kr)"><v-icon size="18">mdi-delete</v-icon></v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+        <v-alert v-else type="info">No key results for this objective.</v-alert>
       </v-card-text>
     </v-card>
     <v-alert v-else type="error">Objective not found.</v-alert>
@@ -143,6 +165,24 @@
       @cancel="deleteProgressDialog.value = false"
       @delete="handleDeleteProgressUpdate"
     />
+    <KeyResultEditDialog
+      v-model="showKeyResultDialog"
+      :key-result-id="keyResultDialogId"
+      :objective-id="objective?.id"
+      @cancel="showKeyResultDialog = false"
+      @save="fetchKeyResultsForObjective"
+    />
+    <v-dialog v-model="showDeleteKeyResultDialog" max-width="400">
+      <v-card>
+        <v-card-title>Delete Key Result</v-card-title>
+        <v-card-text>Are you sure you want to delete this key result?</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="grey" text @click="showDeleteKeyResultDialog = false">Cancel</v-btn>
+          <v-btn color="error" text @click="handleDeleteKeyResult">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -155,6 +195,7 @@
   import ProgressUpdateList from '@/components/ProgressUpdateList.vue';
   import ProgressUpdateDeleteDialog from '@/components/ProgressUpdateDeleteDialog.vue';
   import ProgressAnalysis from '@/components/ProgressAnalysis.vue';
+  import KeyResultEditDialog from '@/components/KeyResultEditDialog.vue';
 
   defineEmits(['edit-objective']);
 
@@ -178,6 +219,12 @@
   const progressUpdateToDelete = ref(null)
 
   const progressAnalysisKey = ref(0)
+
+  const keyResults = ref([])
+  const showKeyResultDialog = ref(false)
+  const keyResultDialogId = ref(null)
+  const keyResultToDelete = ref(null)
+  const showDeleteKeyResultDialog = ref(false)
 
   function refreshProgressAnalysis () {
     progressAnalysisKey.value++
@@ -344,6 +391,47 @@
     }
   }
 
+  async function fetchKeyResultsForObjective () {
+    if (!objective.value?.id) return;
+    try {
+      const res = await api.get(`/key-results/by-objective/${objective.value.id}`)
+      keyResults.value = res.data
+    } catch {
+      keyResults.value = []
+    }
+  }
+
+  function openCreateKeyResultDialog () {
+    keyResultDialogId.value = null
+    showKeyResultDialog.value = true
+  }
+  function openEditKeyResultDialog (kr) {
+    keyResultDialogId.value = kr.id
+    showKeyResultDialog.value = true
+  }
+  function openDeleteKeyResultDialog (kr) {
+    keyResultToDelete.value = kr
+    showDeleteKeyResultDialog.value = true
+  }
+
+  async function handleDeleteKeyResult () {
+    if (!keyResultToDelete.value?.id) return
+    try {
+      await api.delete(`/key-results/${keyResultToDelete.value.id}`)
+      snackbarText.value = 'Key result deleted.'
+      snackbarColor.value = 'success'
+      snackbar.value = true
+      await fetchKeyResultsForObjective()
+    } catch (e) {
+      snackbarText.value = 'Failed to delete key result: ' + (e?.response?.data?.detail || e.message)
+      snackbarColor.value = 'error'
+      snackbar.value = true
+    } finally {
+      showDeleteKeyResultDialog.value = false
+      keyResultToDelete.value = null
+    }
+  }
+
   const displayFields = computed(() => {
     if (!objective.value) return {};
     const safe = v => (v === undefined || v === null || v === '') ? '-' : v;
@@ -390,6 +478,7 @@
   });
 
   watch(objective, fetchProgressUpdates, { immediate: true });
+  watch(objective, () => { fetchKeyResultsForObjective() }, { immediate: true })
 </script>
 
 <style scoped>
