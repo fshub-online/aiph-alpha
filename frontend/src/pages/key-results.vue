@@ -12,6 +12,7 @@
       :items="keyResults"
       :loading="loading"
       :search="search"
+      show-headers
     >
       <template #top>
         <v-text-field v-model="search" class="mx-4" clearable label="Search" />
