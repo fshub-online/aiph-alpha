@@ -72,7 +72,7 @@
   async function fetchKeyResults () {
     loading.value = true
     try {
-      const res = await api.get('/key_results/')
+      const res = await api.get('/key-results/')
       keyResults.value = res.data
     } catch (e) {
       snackbarText.value = 'Failed to load key results: ' + (e?.response?.data?.detail || e.message)
@@ -108,7 +108,7 @@
 
   async function deleteKeyResult () {
     try {
-      await api.delete(`/key_results/${deleteKeyResultId.value}`)
+      await api.delete(`/key-results/${deleteKeyResultId.value}`)
       showDeleteDialog.value = false
       await fetchKeyResults()
       snackbarText.value = 'Key Result deleted.'
