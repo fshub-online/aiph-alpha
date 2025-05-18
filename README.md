@@ -152,3 +152,4 @@ docker-compose -f docker-compose.prod.yml --env-file .env up -d
 - [Vite Env Variables](https://vitejs.dev/guide/env-and-mode.html)
 - [FastAPI Deployment](https://fastapi.tiangolo.com/deployment/)
 - [Vuetify Docs](https://vuetifyjs.com/)
+
