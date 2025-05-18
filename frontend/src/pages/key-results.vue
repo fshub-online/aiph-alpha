@@ -12,7 +12,6 @@
       :items="keyResults"
       :loading="loading"
       :search="search"
-      show-headers
     >
       <template #top>
         <v-text-field v-model="search" class="mx-4" clearable label="Search" />
@@ -75,15 +74,15 @@
   const snackbarText = ref('')
 
   const headers = [
-    { text: 'ID', value: 'id' },
-    { text: 'Title', value: 'title' },
-    { text: 'Start', value: 'start_value' },
-    { text: 'Current', value: 'current_value' },
-    { text: 'Target', value: 'target_value' },
-    { text: 'Unit', value: 'unit' },
-    { text: 'Status', value: 'status' },
-    { text: 'Due Date', value: 'due_date' },
-    { text: 'Actions', value: 'actions', sortable: false },
+    { title: 'ID', value: 'id' },
+    { title: 'Title', value: 'title' },
+    { title: 'Start', value: 'start_value' },
+    { title: 'Current', value: 'current_value' },
+    { title: 'Target', value: 'target_value' },
+    { title: 'Unit', value: 'unit' },
+    { title: 'Status', value: 'status' },
+    { title: 'Due Date', value: 'due_date' },
+    { title: 'Actions', value: 'actions', sortable: false },
   ]
 
   async function fetchKeyResults () {

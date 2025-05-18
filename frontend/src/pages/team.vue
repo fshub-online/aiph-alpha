@@ -17,7 +17,6 @@
         <v-text-field v-model="search" class="mx-4" clearable label="Search" />
       </template>
       <template #item.actions="{ item }">
-        <v-btn color="primary" icon="mdi-eye" size="small" @click="openDetailDialog(item)" />
         <v-btn color="primary" icon="mdi-pencil" size="small" @click="openEditDialog(item)" />
         <v-btn color="error" icon="mdi-delete" size="small" @click="openDeleteDialog(item)" />
         <v-btn
@@ -48,39 +47,6 @@
           <v-spacer />
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
           <v-btn color="error" @click="deleteTeamMember">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Detail Dialog -->
-    <v-dialog v-model="detailDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="text-h6">Team Member Details</span>
-        </v-card-title>
-        <v-card-text>
-          <v-list>
-            <v-list-item><v-list-item-title>ID</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.id }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>First Name</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.first_name }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Last Name</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.last_name }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Email</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.email }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Phone Number</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.phone_number }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Position</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.position }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Notes</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.notes }}</v-list-item-subtitle></v-list-item>
-            <v-list-item>
-              <v-list-item-title>Supervisor ID</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ detailTeamMember?.supervisor_id }}
-                <span v-if="detailSupervisor"> ({{ detailSupervisor.first_name }} {{ detailSupervisor.last_name }}<span v-if="detailSupervisor.position">, {{ detailSupervisor.position }}</span>)</span>
-              </v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item><v-list-item-title>Created At</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.created_at }}</v-list-item-subtitle></v-list-item>
-            <v-list-item><v-list-item-title>Updated At</v-list-item-title><v-list-item-subtitle>{{ detailTeamMember?.updated_at }}</v-list-item-subtitle></v-list-item>
-          </v-list>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn text @click="detailDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -295,12 +261,6 @@
       snackbar.value = true
       detailSupervisor.value = null;
     }
-  }
-
-  function openDetailDialog (member) {
-    detailTeamMember.value = member;
-    detailDialog.value = true;
-    fetchDetailSupervisor(member.supervisor_id);
   }
 
   onMounted(fetchTeamMembers);
