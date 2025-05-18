@@ -68,8 +68,8 @@ services:
     # Recommended: Add a healthcheck for the database for 'depends_on' condition
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-mydatabase}"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
 
 volumes:
