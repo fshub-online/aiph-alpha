@@ -47,3 +47,6 @@ def delete_key_result(db: Session, *, key_result_id: int) -> Optional[KeyResult]
         db.commit()
     return obj
 
+def get_key_results_by_objective(db: Session, objective_id: int):
+    return db.query(KeyResult).filter(KeyResult.objective_id == objective_id).all()
+

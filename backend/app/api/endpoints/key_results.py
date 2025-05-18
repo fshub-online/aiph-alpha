@@ -56,3 +56,8 @@ def delete_key_result(key_result_id: int, db: Session = Depends(get_db)):
     if not db_obj:
         raise HTTPException(status_code=404, detail="KeyResult not found")
     return db_obj
+
+
+@router.get("/by-objective/{objective_id}", response_model=List[schemas.key_result.KeyResult])
+def get_key_results_by_objective(objective_id: int, db: Session = Depends(get_db)):
+    return crud.crud_key_result.get_key_results_by_objective(db, objective_id=objective_id)

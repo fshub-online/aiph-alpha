@@ -18,6 +18,13 @@
         <div v-for="obj in objectives" :key="obj.id" class="objective-item">
           <v-icon :color="getObjectiveColor(obj.status)" size="32">mdi-flag-variant</v-icon>
           <span class="objective-title" style="cursor:pointer; text-decoration:underline;" @click="$emit('edit-objective', obj)">{{ obj.title }}</span>
+          <span v-if="keyResultsByObjective[obj.id] && keyResultsByObjective[obj.id].length" class="key-results-list" style="margin-left: 0.5em; color: #1976d2; font-size: 0.95em;">
+            (
+            <span v-for="(kr, idx) in keyResultsByObjective[obj.id]" :key="kr.id">
+              {{ kr.title }}<span v-if="idx < keyResultsByObjective[obj.id].length - 1">, </span>
+            </span>
+            )
+          </span>
           <v-icon color="#888" size="18" style="margin-left:2px; cursor:pointer;" @click="goToObjectiveDashboard(obj.id)">mdi-dots-horizontal</v-icon>
         </div>
       </div>
@@ -51,6 +58,7 @@
   const objectives = ref([])
   const objectivesLoading = ref(false)
   const objectivesError = ref(null)
+  const keyResultsByObjective = ref({})
   const router = useRouter()
 
   async function fetchObjectivesForMember (memberId) {
@@ -59,10 +67,23 @@
     try {
       const res = await api.get(`/team-members/${memberId}/objectives`)
       objectives.value = res.data
+      // Fetch key results for each objective
+      for (const obj of objectives.value) {
+        fetchKeyResultsForObjective(obj.id)
+      }
     } catch (e) {
       objectivesError.value = e?.response?.data?.detail || e.message
     } finally {
       objectivesLoading.value = false
+    }
+  }
+
+  async function fetchKeyResultsForObjective (objectiveId) {
+    try {
+      const res = await api.get(`/key-results/by-objective/${objectiveId}`)
+      keyResultsByObjective.value[objectiveId] = res.data
+    } catch {
+      keyResultsByObjective.value[objectiveId] = []
     }
   }
 
@@ -86,6 +107,14 @@
   watch(() => props.member.id, id => {
     if (id) fetchObjectivesForMember(id)
   }, { immediate: true })
+
+  watch(objectives, objs => {
+    if (objs && objs.length) {
+      for (const obj of objs) {
+        fetchKeyResultsForObjective(obj.id)
+      }
+    }
+  })
 </script>
 
 <style scoped>
@@ -148,5 +177,9 @@
 
 .objective-title {
   color: #222 !important; /* Ensures dark text regardless of theme */
+}
+.key-results-list {
+  color: #1976d2;
+  font-size: 0.95em;
 }
 </style>
