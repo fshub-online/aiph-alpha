@@ -20,6 +20,11 @@ services:
       - ALGORITHM=${ALGORITHM}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
       - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS}
+    healthcheck:
+      test: ["CMD-SHELL", "python", "/app/health_check.py"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     depends_on:
       db:
         condition: service_healthy # Wait for DB to be healthy before starting/running migrations
@@ -40,7 +45,8 @@ services:
     environment:
       - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
     depends_on:
-      - backend # Ensures backend is started, good for frontend making API calls.
+      backend:
+        condition: service_healthy # Optional: wait for backend to be healthy if healthcheck is defined
     restart: unless-stopped
     networks:
       - app-network
@@ -64,8 +70,8 @@ services:
       - app-network
     healthcheck: # Ensure DB is ready before migrations run
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
 
 
