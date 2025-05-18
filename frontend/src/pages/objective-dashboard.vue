@@ -112,18 +112,31 @@
             New Key Result
           </v-btn>
         </div>
-        <v-list v-if="keyResults.length" class="key-result-list">
-          <v-list-item v-for="kr in keyResults" :key="kr.id" class="key-result-list-item">
-            <v-list-item-content>
-              <div class="key-result-title">{{ kr.title }}</div>
-              <div class="key-result-status">Status: {{ kr.status }}</div>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn icon size="small" @click="openEditKeyResultDialog(kr)"><v-icon size="18">mdi-pencil</v-icon></v-btn>
-              <v-btn color="error" icon size="small" @click="openDeleteKeyResultDialog(kr)"><v-icon size="18">mdi-delete</v-icon></v-btn>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
+        <v-table v-if="keyResults.length" class="key-result-table">
+          <thead>
+            <tr>
+              <th>Due Date</th>
+              <th>Title</th>
+              <th>Start</th>
+              <th>Current</th>
+              <th>Target</th>
+              <th style="width: 80px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="kr in keyResults" :key="kr.id">
+              <td>{{ kr.due_date ? (new Date(kr.due_date)).toLocaleDateString() : '-' }}</td>
+              <td>{{ kr.title }}</td>
+              <td>{{ kr.start_value ?? '-' }}</td>
+              <td>{{ kr.current_value ?? '-' }}</td>
+              <td>{{ kr.target_value ?? '-' }}</td>
+              <td>
+                <v-btn icon size="small" @click="openEditKeyResultDialog(kr)"><v-icon size="18">mdi-pencil</v-icon></v-btn>
+                <v-btn color="error" icon size="small" @click="openDeleteKeyResultDialog(kr)"><v-icon size="18">mdi-delete</v-icon></v-btn>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
         <v-alert v-else type="info">No key results for this objective.</v-alert>
       </v-card-text>
     </v-card>
@@ -521,5 +534,20 @@
   font-size: 1em;
   font-weight: 400;
   color: var(--v-theme-on-surface);
+}
+.key-result-table {
+  margin-bottom: 1.5rem;
+}
+.key-result-table th, .key-result-table td {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.97em;
+}
+.key-result-table th {
+  background: #f5f7fa;
+  font-weight: 600;
+  color: #1976d2;
+}
+.key-result-table td {
+  background: #fff;
 }
 </style>
