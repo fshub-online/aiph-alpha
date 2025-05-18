@@ -69,4 +69,5 @@ class Objective(Base):
 
     owner = relationship("TeamMember", backref="objectives")
     parent_objective = relationship("Objective", remote_side="Objective.id", backref="sub_objectives")
+    key_results = relationship("KeyResult", back_populates="objective")
     # progressUpdates will be handled as a separate table/model if needed

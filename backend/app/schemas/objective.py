@@ -40,10 +40,6 @@ class ObjectiveReviewCadence(str, Enum):
     BI_ANNUALLY = "BI_ANNUALLY"
     ANNUALLY = "ANNUALLY"
 
-class ProgressUpdate(BaseModel):
-    date: date
-    comment: str
-    progress: Optional[float] = None
 
 class ObjectiveBase(BaseModel):
     title: str
@@ -60,19 +56,35 @@ class ObjectiveBase(BaseModel):
     tags: Optional[List[str]] = None
     confidentiality: Optional[ObjectiveConfidentiality] = None
     strategic_perspective: Optional[ObjectiveStrategicPerspective] = None
-    # progress_updates: Optional[List[ProgressUpdate]] = None
     review_cadence: Optional[ObjectiveReviewCadence] = None
     last_review_date: Optional[date] = None
 
 class ObjectiveCreate(ObjectiveBase):
-    last_updated_date: datetime
+    pass
 
-class ObjectiveUpdate(ObjectiveBase):
-    last_updated_date: datetime
+class ObjectiveUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    level: Optional[ObjectiveLevel] = None
+    owner_id: Optional[int] = None
+    parent_objective_id: Optional[int] = None
+    status: Optional[ObjectiveStatus] = None
+    priority: Optional[ObjectivePriority] = None
+    start_date: Optional[date] = None
+    target_completion_date: Optional[date] = None
+    actual_completion_date: Optional[date] = None
+    alignment_statement: Optional[str] = None
+    tags: Optional[List[str]] = None
+    confidentiality: Optional[ObjectiveConfidentiality] = None
+    strategic_perspective: Optional[ObjectiveStrategicPerspective] = None
+    review_cadence: Optional[ObjectiveReviewCadence] = None
+    last_review_date: Optional[date] = None
+    last_updated_date: Optional[datetime] = None
 
 class ObjectiveInDBBase(ObjectiveBase):
     id: int
-    last_updated_date: datetime
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

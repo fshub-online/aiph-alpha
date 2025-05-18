@@ -17,8 +17,14 @@ class TeamMemberCreate(TeamMemberBase):
     pass
 
 
-class TeamMemberUpdate(TeamMemberBase):
-    pass
+class TeamMemberUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone_number: Optional[str] = None
+    position: Optional[str] = None
+    notes: Optional[str] = None
+    supervisor_id: Optional[int] = None
 
 
 class TeamMemberInDBBase(TeamMemberBase):

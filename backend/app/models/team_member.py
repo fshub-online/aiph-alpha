@@ -20,3 +20,4 @@ class TeamMember(Base):
     supervisor_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("team_members.id"), nullable=True)
 
     supervisor = relationship("TeamMember", remote_side="TeamMember.id", backref="subordinates")
+    key_results = relationship("KeyResult", back_populates="team_member")
