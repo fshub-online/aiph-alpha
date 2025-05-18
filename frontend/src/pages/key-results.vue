@@ -157,14 +157,6 @@
   justify-content: center;
   min-height: 60vh;
 }
-.key-results-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 900px;
-  margin: 2rem 0 1rem 0;
-}
 .back-icon-link {
   display: flex;
   flex-direction: column;
