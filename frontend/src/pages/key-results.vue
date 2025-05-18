@@ -1,33 +1,34 @@
 <template>
-  <div class="centered-page">
-    <router-link class="back-icon-link" to="/aiph">
-      <v-icon size="48">mdi-arrow-left-circle-outline</v-icon>
-      <span>Back to Hub</span>
-    </router-link>
-    <div class="key-results-header">
-      <h2>Key Results</h2>
-      <v-btn color="primary" @click="openCreateDialog">Create Key Result</v-btn>
-    </div>
+  <v-container>
+    <v-row class="mb-4">
+      <v-col>
+        <v-btn color="primary" @click="openCreateDialog">Create Key Result</v-btn>
+      </v-col>
+    </v-row>
     <v-data-table
-      class="mt-4"
-      dense
-      disable-sort
+      class="elevation-1"
       :headers="headers"
       item-key="id"
       :items="keyResults"
       :loading="loading"
+      :search="search"
     >
+      <template #top>
+        <v-text-field v-model="search" class="mx-4" clearable label="Search" />
+      </template>
       <template #item.actions="{ item }">
         <v-btn color="primary" icon size="small" @click="openEditDialog(item)"><v-icon>mdi-pencil</v-icon></v-btn>
         <v-btn color="error" icon size="small" @click="openDeleteDialog(item)"><v-icon>mdi-delete</v-icon></v-btn>
       </template>
     </v-data-table>
+
     <KeyResultEditDialog
       v-model="showDialog"
       :key-result-id="dialogKeyResultId"
       @cancel="() => { showDialog = false }"
       @save="handleSaveKeyResult"
     />
+
     <v-dialog v-model="showDeleteDialog" max-width="400px">
       <v-card>
         <v-card-title>Delete Key Result</v-card-title>
@@ -39,10 +40,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="4000">
       {{ snackbarText }}
     </v-snackbar>
-  </div>
+
+    <v-row class="mt-8">
+      <v-col cols="12">
+        <router-link class="back-icon-link" to="/aiph">
+          <v-icon size="48">mdi-arrow-left-circle-outline</v-icon>
+          <span>Back to Hub</span>
+        </router-link>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
