@@ -72,6 +72,7 @@
   const snackbarText = ref('')
 
   const headers = [
+    { text: 'ID', value: 'id' },
     { text: 'Description', value: 'description' },
     { text: 'Target', value: 'target_value' },
     { text: 'Current', value: 'current_value' },
