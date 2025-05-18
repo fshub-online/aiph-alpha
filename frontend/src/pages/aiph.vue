@@ -23,6 +23,7 @@
         <v-icon size="36">mdi-checkbox-marked-circle-outline</v-icon>
         <span>Key Results</span>
       </router-link>
+      <v-btn class="mt-2" color="primary" size="small" @click="openCreateKeyResultDialog">Create Key Result</v-btn>
       <router-link class="icon-link" to="/evaluations">
         <v-icon size="36">mdi-clipboard-check-outline</v-icon>
         <span>Evaluations</span>
@@ -66,6 +67,12 @@
       @cancel="() => { showUserDialog = false }"
       @save="handleSaveUser"
     />
+    <KeyResultEditDialog
+      v-model="showKeyResultDialog"
+      :key-result-id="keyResultDialogId"
+      @cancel="() => { showKeyResultDialog = false }"
+      @save="handleSaveKeyResult"
+    />
     <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="4000">
       {{ snackbarText }}
     </v-snackbar>
@@ -78,6 +85,7 @@
   import ObjectiveEditDialog from '@/components/ObjectiveEditDialog.vue';
   import TeamMemberEditDialog from '@/components/TeamMemberEditDialog.vue';
   import UserEditDialog from '@/components/UserEditDialog.vue';
+  import KeyResultEditDialog from '@/components/KeyResultEditDialog.vue';
   import api from '@/api';
 
   const teamMembers = ref([]);
@@ -99,6 +107,9 @@
 
   const showUserDialog = ref(false);
   const userDialogId = ref(null);
+
+  const showKeyResultDialog = ref(false);
+  const keyResultDialogId = ref(null);
 
   async function fetchEnumOptions () {
     try {
@@ -195,6 +206,11 @@
     showUserDialog.value = true;
   }
 
+  function openCreateKeyResultDialog () {
+    keyResultDialogId.value = null;
+    showKeyResultDialog.value = true;
+  }
+
   async function handleSaveTeamMember (teamMember, formRef) {
     if (formRef && formRef.validate && !formRef.validate()) return;
     try {
@@ -230,6 +246,15 @@
       snackbarColor.value = 'error'
       snackbar.value = true
     }
+  }
+
+  function handleSaveKeyResult (kr, formRef) {
+    if (formRef && !(formRef.validate && formRef.validate())) return;
+    // Implement save logic here (API call)
+    showKeyResultDialog.value = false;
+    snackbarText.value = 'Key Result saved successfully.';
+    snackbarColor.value = 'success';
+    snackbar.value = true;
   }
 
   function handleEditTeamMember (member) {
