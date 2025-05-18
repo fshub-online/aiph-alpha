@@ -21,7 +21,7 @@
           <span v-if="keyResultsByObjective[obj.id] && keyResultsByObjective[obj.id].length" class="key-results-list" style="margin-left: 0.5em; color: #1976d2; font-size: 0.95em;">
             (
             <span v-for="(kr, idx) in keyResultsByObjective[obj.id]" :key="kr.id">
-              {{ kr.title }}<span v-if="idx < keyResultsByObjective[obj.id].length - 1">, </span>
+              <span style="cursor:pointer; text-decoration:underline;" @click="$emit('edit-key-result', kr)">{{ kr.title }}</span><span v-if="idx < keyResultsByObjective[obj.id].length - 1">, </span>
             </span>
             )
           </span>
@@ -53,7 +53,7 @@
     level: { type: Number, required: true },
   });
 
-  defineEmits(['edit-objective', 'edit-team-member'])
+  defineEmits(['edit-objective', 'edit-team-member', 'edit-key-result'])
 
   const objectives = ref([])
   const objectivesLoading = ref(false)
