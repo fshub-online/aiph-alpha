@@ -112,32 +112,11 @@
             New Key Result
           </v-btn>
         </div>
-        <v-table v-if="keyResults.length" class="key-result-table">
-          <thead>
-            <tr>
-              <th>Due Date</th>
-              <th>Title</th>
-              <th>Start</th>
-              <th>Current</th>
-              <th>Target</th>
-              <th style="width: 80px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="kr in keyResults" :key="kr.id">
-              <td>{{ kr.due_date ? (new Date(kr.due_date)).toLocaleDateString() : '-' }}</td>
-              <td>{{ kr.title }}</td>
-              <td>{{ kr.start_value ?? '-' }}</td>
-              <td>{{ kr.current_value ?? '-' }}</td>
-              <td>{{ kr.target_value ?? '-' }}</td>
-              <td>
-                <v-btn icon size="small" @click="openEditKeyResultDialog(kr)"><v-icon size="18">mdi-pencil</v-icon></v-btn>
-                <v-btn color="error" icon size="small" @click="openDeleteKeyResultDialog(kr)"><v-icon size="18">mdi-delete</v-icon></v-btn>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-        <v-alert v-else type="info">No key results for this objective.</v-alert>
+        <KeyResultList
+          :key-results="keyResults"
+          @delete="openDeleteKeyResultDialog"
+          @edit="openEditKeyResultDialog"
+        />
       </v-card-text>
     </v-card>
     <v-alert v-else type="error">Objective not found.</v-alert>
@@ -209,6 +188,7 @@
   import ProgressUpdateDeleteDialog from '@/components/ProgressUpdateDeleteDialog.vue';
   import ProgressAnalysis from '@/components/ProgressAnalysis.vue';
   import KeyResultEditDialog from '@/components/KeyResultEditDialog.vue';
+  import KeyResultList from '@/components/KeyResultList.vue';
 
   defineEmits(['edit-objective']);
 
