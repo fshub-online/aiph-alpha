@@ -77,7 +77,6 @@
   const search = ref('');
   const dialog = ref(false);
   const deleteDialog = ref(false);
-  const detailDialog = ref(false);
   const dialogMode = ref('create');
   const editedTeamMember = ref({
     id: null,
@@ -90,8 +89,6 @@
     supervisor_id: null,
   });
   const selectedTeamMember = ref(null);
-  const detailTeamMember = ref(null);
-  const detailSupervisor = ref(null);
 
   const snackbar = ref(false)
   const snackbarColor = ref('')
@@ -244,22 +241,6 @@
       snackbarText.value = 'Failed to delete team member: ' + (e?.response?.data?.detail || e.message)
       snackbarColor.value = 'error'
       snackbar.value = true
-    }
-  }
-
-  async function fetchDetailSupervisor (supervisorId) {
-    if (!supervisorId || supervisorId === 0) {
-      detailSupervisor.value = null;
-      return;
-    }
-    try {
-      const res = await api.get(`/team-members/${supervisorId}`);
-      detailSupervisor.value = res.data;
-    } catch (e) {
-      snackbarText.value = 'Failed to load supervisor details: ' + (e?.response?.data?.detail || e.message)
-      snackbarColor.value = 'error'
-      snackbar.value = true
-      detailSupervisor.value = null;
     }
   }
 
