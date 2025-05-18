@@ -115,7 +115,7 @@
 
   async function fetchEnumOptions () {
     try {
-      const res = await api.get('/objectives/enums');
+      const res = await api.get('/objectives/enums/');
       enumOptions.value = res.data;
       enumOptionsLoaded.value = true;
     } catch (e) {
@@ -128,7 +128,7 @@
 
   async function fetchTeamMembers () {
     try {
-      const res = await api.get('/team-members');
+      const res = await api.get('/team-members/');
       teamMembers.value = res.data;
       teamMembersLoaded.value = true;
     } catch (e) {
@@ -179,7 +179,7 @@
   async function reloadDashboard () {
     loading.value = true;
     try {
-      const teamRes = await api.get('/team-members');
+      const teamRes = await api.get('/team-members/');
       teamMembers.value = teamRes.data;
       const userRes = await api.get('/users/me');
       userTeamMemberId.value = userRes.data.team_member_id;
@@ -237,7 +237,7 @@
   async function handleSaveUser (user, formRef) {
     if (formRef && formRef.validate && !formRef.validate()) return
     try {
-      await api.post('/users', user)
+      await api.post('/users/', user)
       snackbarText.value = 'User created successfully.'
       snackbarColor.value = 'success'
       snackbar.value = true
@@ -270,7 +270,7 @@
     await fetchTeamMembers();
     try {
       // Fetch all team members
-      const teamRes = await api.get('/team-members');
+      const teamRes = await api.get('/team-members/');
       teamMembers.value = teamRes.data;
       // Fetch the logged-in user's team_member id (token is included automatically)
       const userRes = await api.get('/users/me');

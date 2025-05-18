@@ -173,10 +173,10 @@
     try {
       if (props.keyResultId) {
         const [krRes, enumsRes, objRes, membersRes] = await Promise.all([
-          api.get(`/key_results/${props.keyResultId}`),
-          api.get('/key_results/enums'),
-          api.get('/objectives'),
-          api.get('/team-members'),
+          api.get(`/key-results/${props.keyResultId}`),
+          api.get('/key-results/enums'),
+          api.get('/objectives/'),
+          api.get('/team-members/'),
         ])
         localKeyResult.value = krRes.data
         enumOptions.value = enumsRes.data
@@ -190,9 +190,9 @@
         teamMembersLoaded.value = true
       } else {
         const [enumsRes, objRes, membersRes] = await Promise.all([
-          api.get('/key_results/enums'),
-          api.get('/objectives'),
-          api.get('/team-members'),
+          api.get('/key-results/enums'),
+          api.get('/objectives/'),
+          api.get('/team-members/'),
         ])
         localKeyResult.value = {
           description: '',
