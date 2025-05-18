@@ -253,7 +253,7 @@
   async function handleSaveKeyResult (kr, formRef) {
     if (formRef && formRef.validate && !formRef.validate()) return;
     try {
-      await api.post('/key_results/', kr);
+      await api.post('/key-results/', kr);
       snackbarText.value = 'Key Result created successfully.';
       snackbarColor.value = 'success';
       snackbar.value = true;
