@@ -65,18 +65,22 @@
   const keyResults = ref([])
   const loading = ref(false)
   const showDialog = ref(false)
+  const search = ref('')
   const dialogKeyResultId = ref(null)
   const showDeleteDialog = ref(false)
   const deleteKeyResultId = ref(null)
+
   const snackbar = ref(false)
   const snackbarColor = ref('')
   const snackbarText = ref('')
 
   const headers = [
     { text: 'ID', value: 'id' },
-    { text: 'Description', value: 'description' },
-    { text: 'Target', value: 'target_value' },
+    { text: 'Title', value: 'title' },
+    { text: 'Start', value: 'start_value' },
     { text: 'Current', value: 'current_value' },
+    { text: 'Target', value: 'target_value' },
+    { text: 'Unit', value: 'unit' },
     { text: 'Status', value: 'status' },
     { text: 'Due Date', value: 'due_date' },
     { text: 'Actions', value: 'actions', sortable: false },
