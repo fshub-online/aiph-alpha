@@ -145,12 +145,16 @@
       last_updated_date: now,
     };
     try {
-      await api.put(`/objectives/${obj.id}`, payload);
-      snackbarText.value = 'Objective updated successfully.';
+      if (dialogMode.value === 'edit' && obj.id) {
+        await api.put(`/objectives/${obj.id}`, payload);
+        snackbarText.value = 'Objective updated successfully.';
+      } else {
+        await api.post('/objectives', payload);
+        snackbarText.value = 'Objective created successfully.';
+      }
       snackbarColor.value = 'success';
       snackbar.value = true;
       showObjectiveDialog.value = false;
-      // Reload dashboard data after editing objective
       await reloadDashboard();
     } catch (e) {
       snackbarText.value = 'Failed to save objective: ' + (e?.response?.data?.detail || e.message);

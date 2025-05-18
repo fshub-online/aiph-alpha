@@ -145,4 +145,8 @@
   align-items: center;
   gap: 0.3rem;
 }
+
+.objective-title {
+  color: #222 !important; /* Ensures dark text regardless of theme */
+}
 </style>
