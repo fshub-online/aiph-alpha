@@ -5,21 +5,17 @@
         <tr>
           <th>Due Date</th>
           <th>Title</th>
-          <th>Start</th>
-          <th>Current</th>
-          <th>Target</th>
-          <th style="width: 80px">Actions</th>
+          <th>Start / Current / Target</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="kr in keyResults" :key="kr.id">
           <td>
-            {{ kr.due_date ? new Date(kr.due_date).toLocaleDateString() : "-" }}
+            {{ kr.due_date }}
           </td>
           <td>{{ kr.title }}</td>
-          <td>{{ kr.start_value ?? "-" }}</td>
-          <td>{{ kr.current_value ?? "-" }}</td>
-          <td>{{ kr.target_value ?? "-" }}</td>
+          <td>{{ kr.start_value ?? "-" }} / {{ kr.current_value ?? "-" }} / {{ kr.target_value ?? "-" }}</td>
           <td>
             <v-btn
               icon
