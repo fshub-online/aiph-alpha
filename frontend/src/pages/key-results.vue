@@ -110,12 +110,25 @@
     showDeleteDialog.value = true
   }
 
-  async function handleSaveKeyResult () {
-    showDialog.value = false
-    await fetchKeyResults()
-    snackbarText.value = 'Key Result saved successfully.'
-    snackbarColor.value = 'success'
-    snackbar.value = true
+  async function handleSaveKeyResult (kr, formRef) {
+    if (formRef && formRef.validate && !formRef.validate()) return;
+    try {
+      if (dialogKeyResultId.value) {
+        await api.put(`/key-results/${dialogKeyResultId.value}`, kr)
+        snackbarText.value = 'Key Result updated successfully.'
+      } else {
+        await api.post('/key-results/', kr)
+        snackbarText.value = 'Key Result created successfully.'
+      }
+      snackbarColor.value = 'success'
+      snackbar.value = true
+      showDialog.value = false
+      await fetchKeyResults()
+    } catch (e) {
+      snackbarText.value = 'Failed to save key result: ' + (e?.response?.data?.detail || e.message)
+      snackbarColor.value = 'error'
+      snackbar.value = true
+    }
   }
 
   async function deleteKeyResult () {
