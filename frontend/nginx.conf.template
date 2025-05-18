@@ -47,7 +47,8 @@ server {
         # NEW/MODIFIED RULE:
         # If backend (now aware of --root-path /proxy) sends Location: http://localhost/proxy/api/v1/...
         # Rewrite it to: http://<nginx_host_and_port>/proxy/api/v1/...
-        proxy_redirect ~^http://localhost(:\d+)?(/proxy/.*)$ $scheme://$http_host$2;
+        # proxy_redirect ~^http://localhost(:\d+)?(/proxy/.*)$ $scheme://$http_host$2;
+        proxy_redirect ~^http://localhost(:\d+)?(.*)$ $scheme://$http_host/proxy/$2;
 
         # Keep this for safety, in case backend ever sends its internal address
         proxy_redirect ~^http://backend:8001/(.*)$ $scheme://$http_host/proxy/$1;
