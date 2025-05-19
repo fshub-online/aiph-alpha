@@ -20,7 +20,7 @@ def create_key_result(
     return crud.crud_key_result.create_key_result(db, obj_in=key_result_in)
 
 
-@router.get("/enums", tags=["key_results"])
+@router.get("/enums", tags=["key-results"])
 def get_key_result_enums():
     return {
         "status": [status.value for status in KeyResultStatus],
