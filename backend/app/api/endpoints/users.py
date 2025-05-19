@@ -16,13 +16,13 @@ from app import crud, models, schemas  # Application-specific imports
 from app.db.session import get_db  # Dependency to get a database session
 from app.core.security import verify_password, create_access_token, create_refresh_token, verify_token, get_password_hash
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+
+router = APIRouter(dependencies=[Depends(oauth2_scheme)])
 """
 FastAPI router for user-related endpoints.
 All routes defined here will be prefixed, e.g., by `/api/v1/users`.
 """
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
 
 # Utility to get current user from JWT token
 
@@ -207,7 +207,8 @@ def delete_user_endpoint(
     return deleted_user
 
 
-@router.post("/login", response_model=schemas.Token)
+# Public endpoints (do not require authentication)
+@router.post("/login", response_model=schemas.Token, dependencies=[])
 def login_user_endpoint(
     *,
     db: Session = Depends(get_db),
@@ -228,7 +229,8 @@ def login_user_endpoint(
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.post("/token", response_model=schemas.Token)
+# Public endpoints (do not require authentication)
+@router.post("/token", response_model=schemas.Token, dependencies=[])
 def login_token(
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -243,7 +245,9 @@ def login_token(
     refresh_token = create_refresh_token({"sub": str(user.id), "username": user.username})
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
-@router.post("/refresh-token", response_model=schemas.Token)
+
+# Public endpoints (do not require authentication)
+@router.post("/refresh-token", response_model=schemas.Token, dependencies=[])
 def refresh_token_endpoint(refresh_token: str):
     from jose import JWTError
     try:
@@ -292,3 +296,8 @@ def change_password(
     db.commit()
     db.refresh(current_user)
     return {"msg": "Password changed successfully"}
+
+
+@router.get("/health", dependencies=[])
+def health_check():
+    return {"status": "ok"}

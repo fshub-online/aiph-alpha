@@ -1,11 +1,13 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app import crud
 from app.schemas.progress_update import ProgressUpdate, ProgressUpdateCreate, ProgressUpdateUpdate
 from app.db.session import get_db
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+router = APIRouter(dependencies=[Depends(oauth2_scheme)])
 
 @router.get("/", response_model=List[ProgressUpdate])
 def list_progress_updates(

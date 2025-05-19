@@ -4,6 +4,7 @@ API Endpoints for Objective Management.
 
 from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.db.session import get_db
@@ -14,7 +15,8 @@ from app.schemas.progress_update import (
 )
 from app.models import objective as objective_models
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+router = APIRouter(dependencies=[Depends(oauth2_scheme)])
 
 
 @router.post("/", response_model=schemas.Objective, status_code=status.HTTP_201_CREATED)

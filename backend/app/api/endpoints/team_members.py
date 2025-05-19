@@ -6,13 +6,15 @@ This module defines the FastAPI routes for CRUD operations on team members.
 
 from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
 from app.db.session import get_db
 from app.models import TeamMember, Objective
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+router = APIRouter(dependencies=[Depends(oauth2_scheme)])
 
 
 @router.post(

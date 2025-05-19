@@ -1,10 +1,12 @@
 from openai import OpenAI
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from app.schemas.rewrite_text import RewriteTextRequest, RewriteTextResponse
 from fastapi import status
 from app.core.config import settings
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+router = APIRouter(dependencies=[Depends(oauth2_scheme)])
 
 
 @router.post(
