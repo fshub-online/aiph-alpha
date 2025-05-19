@@ -254,14 +254,19 @@
   async function handleSaveKeyResult (kr, formRef) {
     if (formRef && formRef.validate && !formRef.validate()) return;
     try {
-      await api.post('/key-results/', kr);
-      snackbarText.value = 'Key Result created successfully.';
+      if (kr.id) {
+        await api.put(`/key-results/${kr.id}`, kr);
+        snackbarText.value = 'Key Result updated successfully.';
+      } else {
+        await api.post('/key-results/', kr);
+        snackbarText.value = 'Key Result created successfully.';
+      }
       snackbarColor.value = 'success';
       snackbar.value = true;
       showKeyResultDialog.value = false;
       // Optionally reload data here if you want to refresh the dashboard
     } catch (e) {
-      snackbarText.value = 'Failed to create key result: ' + (e?.response?.data?.detail || e.message);
+      snackbarText.value = 'Failed to save key result: ' + (e?.response?.data?.detail || e.message);
       snackbarColor.value = 'error';
       snackbar.value = true;
     }
