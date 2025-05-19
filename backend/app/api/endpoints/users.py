@@ -207,62 +207,6 @@ def delete_user_endpoint(
     return deleted_user
 
 
-# Public endpoints (do not require authentication)
-@router.post("/login", response_model=schemas.Token, dependencies=[])
-def login_user_endpoint(
-    *,
-    db: Session = Depends(get_db),
-    login_in: schemas.UserLogin,
-):
-    """
-    Authorize user by username and password.
-    Returns JWT token if authentication is successful.
-    """
-    user = crud.get_user_by_username(db, username=login_in.username)
-    if not user or not verify_password(login_in.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-        )
-    access_token = create_access_token({"sub": str(user.id), "username": user.username})
-    refresh_token = create_refresh_token({"sub": str(user.id), "username": user.username})
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
-
-
-# Public endpoints (do not require authentication)
-@router.post("/token", response_model=schemas.Token, dependencies=[])
-def login_token(
-    db: Session = Depends(get_db),
-    form_data: OAuth2PasswordRequestForm = Depends(),
-):
-    user = crud.get_user_by_username(db, username=form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-        )
-    access_token = create_access_token({"sub": str(user.id), "username": user.username})
-    refresh_token = create_refresh_token({"sub": str(user.id), "username": user.username})
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
-
-
-# Public endpoints (do not require authentication)
-@router.post("/refresh-token", response_model=schemas.Token, dependencies=[])
-def refresh_token_endpoint(refresh_token: str):
-    from jose import JWTError
-    try:
-        payload = verify_token(refresh_token, token_type="refresh")
-        user_id = payload.get("sub")
-        username = payload.get("username")
-        if not user_id or not username:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-        access_token = create_access_token({"sub": user_id, "username": username})
-        new_refresh_token = create_refresh_token({"sub": user_id, "username": username})
-        return {"access_token": access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-
-
 @router.get("/by-team-member/{team_member_id}", response_model=List[schemas.User])
 def get_users_by_team_member_id(
     team_member_id: int,
@@ -298,6 +242,58 @@ def change_password(
     return {"msg": "Password changed successfully"}
 
 
-@router.get("/health", dependencies=[])
+# --- Public endpoints router (no authentication required) ---
+public_router = APIRouter()
+
+@public_router.post("/login", response_model=schemas.Token)
+def login_user_endpoint(
+    *,
+    db: Session = Depends(get_db),
+    login_in: schemas.UserLogin,
+):
+    user = crud.get_user_by_username(db, username=login_in.username)
+    if not user or not verify_password(login_in.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+        )
+    access_token = create_access_token({"sub": str(user.id), "username": user.username})
+    refresh_token = create_refresh_token({"sub": str(user.id), "username": user.username})
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@public_router.post("/token", response_model=schemas.Token)
+def login_token(
+    db: Session = Depends(get_db),
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
+    user = crud.get_user_by_username(db, username=form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+        )
+    access_token = create_access_token({"sub": str(user.id), "username": user.username})
+    refresh_token = create_refresh_token({"sub": str(user.id), "username": user.username})
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@public_router.post("/refresh-token", response_model=schemas.Token)
+def refresh_token_endpoint(refresh_token: str):
+    from jose import JWTError
+    try:
+        payload = verify_token(refresh_token, token_type="refresh")
+        user_id = payload.get("sub")
+        username = payload.get("username")
+        if not user_id or not username:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        access_token = create_access_token({"sub": user_id, "username": username})
+        new_refresh_token = create_refresh_token({"sub": user_id, "username": username})
+        return {"access_token": access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+
+@public_router.get("/health")
 def health_check():
     return {"status": "ok"}
